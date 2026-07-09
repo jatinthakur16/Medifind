@@ -11,9 +11,12 @@ const pharmacyRoutes = require('./routes/pharmacies');
 const reservationRoutes = require('./routes/reservations');
 const prescriptionRoutes = require('./routes/prescriptions');
 
-// Replace app.use(cors()) with this to be safe
-app.use(cors({ origin: 'http://127.0.0.1:5500' }));
+// Allow cross-origin requests
+app.use(cors());
 app.use(express.json());
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/uploads', express.static('uploads'));
 

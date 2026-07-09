@@ -97,7 +97,7 @@ const STORAGE_KEYS = {
   preferences: 'medifind-preferences',
 };
 
-const API_BASE_URL = localStorage.getItem('medifind-api-url') || 'http://localhost:5000';
+const API_BASE_URL = localStorage.getItem('medifind-api-url') || '';
 const DEMO_PASSWORD = 'Demo@12345';
 const SEEDED_PASSWORDS = {
   'admin@medifind.test': 'Admin@1234',
@@ -1746,7 +1746,7 @@ async function loadCustomerHistory() {
   if (!token) return;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/reservations`, {
+    const res = await fetch(`${API_BASE_URL}/api/reservations`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const data = await res.json();

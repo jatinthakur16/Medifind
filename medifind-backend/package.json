@@ -2,14 +2,15 @@
   "name": "medifind-backend",
   "version": "1.0.0",
   "description": "Secure authentication and RBAC backend for MediFind",
-  "main": "src/server.js",
+  "main": "main.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "electron-start": "electron .",
+    "electron-pack": "electron-builder -c.extraMetadata.main=main.js"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -19,7 +20,31 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^26.15.3",
+    "electron-packager": "^17.1.2",
     "nodemon": "^3.0.1",
     "prisma": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.jslworks.medifind",
+    "productName": "MediFind",
+    "asar": false,
+    "win": {
+      "target": "nsis",
+      "icon": "medifind_logo.png"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "prisma/**/*",
+      "public/**/*",
+      ".env",
+      "node_modules/**/*",
+      "medifind_logo.png"
+    ]
   }
 }
