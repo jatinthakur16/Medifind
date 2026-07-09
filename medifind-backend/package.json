@@ -35,7 +35,7 @@
       "icon": "medifind_logo.png"
     },
     "directories": {
-      "output": "dist"
+      "output": "build_out"
     },
     "files": [
       "main.js",
