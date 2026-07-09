@@ -31,6 +31,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-app.listen(5000, () => {
-  console.log('🚀 MediFind secure core listening cleanly on port 5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 MediFind secure core listening cleanly on port ${PORT}`);
 });
