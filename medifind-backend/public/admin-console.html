@@ -271,14 +271,14 @@
     // Helper to build document links
     function buildDocLink(url, label) {
       if (!url) return `<span style="color: var(--slate); font-size: 0.8rem; display: block;">No ${label}</span>`;
-      return `<a href="http://localhost:5000/uploads/${url}" target="_blank" class="doc-link">📄 View ${label}</a><br>`;
+      return `<a href="/uploads/${url}" target="_blank" class="doc-link">📄 View ${label}</a><br>`;
     }
 
     // --- Load Pending Pharmacies ---
     async function loadPendingPharmacies() {
       const tbody = document.getElementById('verificationBody');
       try {
-        const res = await fetch('http://localhost:5000/api/admin/pending', {
+        const res = await fetch('/api/admin/pending', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -338,7 +338,7 @@
       if (!confirm("Are you sure you want to approve this pharmacy? They will be granted immediate access to the platform.")) return;
       
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/approve/${id}`, {
+        const res = await fetch(`/api/admin/approve/${id}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -384,7 +384,7 @@
       }
 
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/reject/${currentRejectId}`, {
+        const res = await fetch(`/api/admin/reject/${currentRejectId}`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -410,7 +410,7 @@
     async function loadPlatformReservations() {
       const tbody = document.getElementById('auditTable');
       try {
-        const res = await fetch('http://localhost:5000/api/reservations', {
+        const res = await fetch('/api/reservations', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -465,7 +465,7 @@
       const tbody = document.getElementById('adminLogsTable');
       if (!tbody) return;
       try {
-        const res = await fetch('http://localhost:5000/api/admin/audit-logs', {
+        const res = await fetch('/api/admin/audit-logs', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const logs = await res.json();
@@ -508,7 +508,7 @@
       const tbody = document.getElementById('registrationsTable');
       if (!tbody) return;
       try {
-        const res = await fetch('http://localhost:5000/api/admin/customers', {
+        const res = await fetch('/api/admin/customers', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const users = await res.json();
@@ -539,7 +539,7 @@
       const tbody = document.getElementById('pharmacyRegistrationsTable');
       if (!tbody) return;
       try {
-        const res = await fetch('http://localhost:5000/api/admin/pharmacies', {
+        const res = await fetch('/api/admin/pharmacies', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const pharmacies = await res.json();

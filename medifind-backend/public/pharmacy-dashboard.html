@@ -416,7 +416,7 @@
           parsed = [urlData]; 
         }
       }
-      return parsed.map(url => url.startsWith('/') ? `http://localhost:5000${url}` : url);
+      return parsed.map(url => url.startsWith('/') ? `${url}` : url);
     }
 
     function switchTab(tabId, btnElement) {
@@ -432,7 +432,7 @@
       tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading...</td></tr>';
 
       try {
-        const res = await fetch(`http://localhost:5000/api/pharmacies/${pharmacyId}/inventory`, {      
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/inventory`, {      
           headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
         
@@ -494,7 +494,7 @@
       if (!qty || isNaN(qty) || Number(qty) <= 0) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/pharmacies/${pharmacyId}/inventory/adjust`, {
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/inventory/adjust`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ batchId: batchId, type: "PURCHASE", quantity: Number(qty) })
@@ -508,7 +508,7 @@
 
     async function loadMedicines() {
       try {
-        const res = await fetch('http://localhost:5000/api/medicines');
+        const res = await fetch('/api/medicines');
         const data = await res.json();
         const select = document.getElementById('medicineSelect');
         select.innerHTML = '<option value="">-- Choose a Medicine --</option>';
@@ -527,7 +527,7 @@
       const rxBody = document.getElementById('prescriptionQueueBody');
       
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations?pharmacyId=${pharmacyId}`, {
+        const res = await fetch(`/api/reservations?pharmacyId=${pharmacyId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -606,7 +606,7 @@
 
     async function acceptPendingReservation(reservationId) {
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations/${pharmacyId}/reservations/${reservationId}`, {
+        const res = await fetch(`/api/reservations/${pharmacyId}/reservations/${reservationId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ action: "ACCEPT_ORDER" }) 
@@ -628,7 +628,7 @@
       if(!confirm("Are you sure you want to reject this reservation? The held stock will be automatically returned to your shelves.")) return;
 
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations/${pharmacyId}/reservations/${reservationId}`, {
+        const res = await fetch(`/api/reservations/${pharmacyId}/reservations/${reservationId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ action: "REJECT" })
@@ -655,7 +655,7 @@
       if (!match) return alert("❌ TOKEN NOT FOUND. Check the list below. Did the page load correctly?");
 
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations/${pharmacyId}/reservations/${match.id}`, {
+        const res = await fetch(`/api/reservations/${pharmacyId}/reservations/${match.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ action: "APPROVE" })
@@ -795,7 +795,7 @@
       const note = document.getElementById('pharmacistNote').value.trim();
       
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations/${pharmacyId}/reservations/${fulfillmentState.orderId}/fulfill`, {
+        const res = await fetch(`/api/reservations/${pharmacyId}/reservations/${fulfillmentState.orderId}/fulfill`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ items: fulfillmentState.items, pharmacistNote: note })
@@ -820,7 +820,7 @@
       const note = document.getElementById('pharmacistNote').value.trim() || "Pharmacy was unable to fulfill this prescription.";
       
       try {
-        const res = await fetch(`http://localhost:5000/api/reservations/${pharmacyId}/reservations/${fulfillmentState.orderId}/fulfill`, {
+        const res = await fetch(`/api/reservations/${pharmacyId}/reservations/${fulfillmentState.orderId}/fulfill`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ items: [], pharmacistNote: note })
@@ -855,7 +855,7 @@
       };
 
       try {
-        const res = await fetch(`http://localhost:5000/api/pharmacies/${pharmacyId}/inventory`, {
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/inventory`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
@@ -885,7 +885,7 @@
       formData.append('file', file);
 
       try {
-        const res = await fetch(`http://localhost:5000/api/pharmacies/${pharmacyId}/inventory/bulk`, {
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/inventory/bulk`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }, 
           body: formData
@@ -925,7 +925,7 @@
       if (!startDate || !endDate) return alert("Please select both dates.");
 
       try {
-        const res = await fetch(`http://localhost:5000/api/pharmacies/${pharmacyId}/analytics?startDate=${startDate}&endDate=${endDate}`, {
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/analytics?startDate=${startDate}&endDate=${endDate}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

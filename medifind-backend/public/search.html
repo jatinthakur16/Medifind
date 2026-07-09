@@ -102,7 +102,7 @@
       loading.style.display = 'block';
 
       try {
-        const response = await fetch(`http://localhost:5000/api/medicines/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`/api/medicines/search?q=${encodeURIComponent(query)}`);
         const data = await response.json();
         
         loading.style.display = 'none';
