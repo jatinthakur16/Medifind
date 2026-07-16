@@ -7,7 +7,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      const toggleBtn = input.nextElementSibling;
+      if (input.type === "password") {
+        input.type = "text";
+        toggleBtn.textContent = "Hide";
+      } else {
+        input.type = "password";
+        toggleBtn.textContent = "Show";
+      }
+    }
+  </script>
   <style>
     body { background-color: var(--paper-soft); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
     .auth-card { background: var(--paper); padding: 40px; border-radius: var(--radius-md); box-shadow: var(--shadow-card); width: 100%; max-width: 450px; }
@@ -27,6 +39,10 @@
     .doc-section { border: 1px solid var(--line); padding: 20px; border-radius: var(--radius-sm); background: var(--paper-soft); margin-top: 8px; }
     .doc-section p { margin-top: 0; font-weight: 600; color: var(--ink); font-size: 0.9rem; }
     .doc-section label { display: block; margin-top: 10px; font-size: 0.85rem; color: var(--slate); }
+  
+    .password-container { position: relative; width: 100%; }
+    .password-container input { width: 100%; }
+    .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--slate); font-size: 0.9rem; user-select: none; }
   </style>
 </head>
 <body>
@@ -52,8 +68,11 @@
 
       <input type="text" id="name" class="auth-input" placeholder="Full Name" required>
       <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
-      <input type="password" id="password" class="auth-input" placeholder="Password" required>
-      
+      <input type="text" id="phone" class="auth-input" placeholder="Mobile Number (10 digits)" pattern="\d{10}" title="Must be exactly 10 digits without spaces or special characters." required>
+      <div class="password-container">
+          <input type="password" id="password" class="auth-input" placeholder="Password" required>
+          <span class="password-toggle" onclick="togglePassword('password')">Show</span>
+        </div>
 
       <div id="pharmacyDocSection" style="display:none;" class="doc-section">
         <p>Pharmacy Verification</p>
@@ -196,6 +215,18 @@ const { latitude, longitude, accuracy } = position.coords;
 }
 document.getElementById('searchLocationBtn').addEventListener('click', searchLocation);
 document.getElementById('useCurrentLocationBtn').addEventListener('click', useCurrentLocation);
+
+    function togglePassword(inputId, icon) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        icon.textContent = '👁️';
+      }
+    }
+
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
@@ -215,6 +246,7 @@ document.getElementById('useCurrentLocationBtn').addEventListener('click', useCu
       const formData = new FormData();
       formData.append('name', document.getElementById('name').value);
       formData.append('email', document.getElementById('email').value);
+      formData.append('phone', document.getElementById('phone').value);
       formData.append('password', document.getElementById('password').value);
       formData.append('role', document.getElementById('role').value);
       

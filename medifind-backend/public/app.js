@@ -1742,7 +1742,7 @@ const renderAuditTable = () => {
 async function loadCustomerHistory() {
   if (!dom.historyTableBody) return;
   
-  const token = localStorage.getItem('medifind-token');
+  
   if (!token) return;
 
   try {

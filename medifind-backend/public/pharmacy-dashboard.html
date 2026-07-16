@@ -59,7 +59,18 @@
       #printSection th, #printSection td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
       #printSection th { background-color: #f8fafc; font-weight: bold; color: #333; }
     }
+
+    /* Toggle Switch CSS */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(20px); }
+    .slider.round { border-radius: 24px; }
+    .slider.round:before { border-radius: 50%; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 </head>
 <body>
 
@@ -75,6 +86,16 @@
 
     <div style="display: flex; align-items: center; gap: 15px;">
       <h1 style="margin: 0; font-size: 1.2rem; font-weight: 500;"><span id="pharmacyName">Pharmacy</span> Dashboard</h1>
+      
+      <!-- Availability Toggle -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-left: 20px;">
+        <span id="availabilityLabel" style="font-size: 0.9rem; font-weight: 600; color: var(--slate);">Offline</span>
+        <label class="switch">
+          <input type="checkbox" id="availabilityToggle" onchange="toggleAvailability()">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </nav>
@@ -381,10 +402,10 @@
   </div>
 
   <script>
-    const token = localStorage.getItem('medifind-token');
+    const token = '';
     const userStr = localStorage.getItem('medifind-user');
     
-    if (!token || !userStr) window.location.href = 'login.html';
+    if (!userStr) window.location.href = 'login.html';
 
     const user = JSON.parse(userStr);
     let pharmacyId = null;
@@ -394,9 +415,23 @@
     if (user.Pharmacy && Array.isArray(user.Pharmacy) && user.Pharmacy.length > 0) {
         pharmacyId = user.Pharmacy[0].id;
         document.getElementById('pharmacyName').textContent = user.Pharmacy[0].name;
+        const toggle = document.getElementById('availabilityToggle');
+        const label = document.getElementById('availabilityLabel');
+        if (user.Pharmacy[0].isAvailable) {
+          toggle.checked = true;
+          label.textContent = 'Available';
+          label.style.color = 'var(--primary)';
+        }
     } else if (user.Pharmacy && !Array.isArray(user.Pharmacy)) {
         pharmacyId = user.Pharmacy.id;
         document.getElementById('pharmacyName').textContent = user.Pharmacy.name;
+        const toggle = document.getElementById('availabilityToggle');
+        const label = document.getElementById('availabilityLabel');
+        if (user.Pharmacy.isAvailable) {
+          toggle.checked = true;
+          label.textContent = 'Available';
+          label.style.color = 'var(--primary)';
+        }
     }
 
     if (!pharmacyId) {
@@ -904,7 +939,38 @@
       }
     }
 
-    function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+    async function logout() { 
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+      localStorage.clear(); 
+      window.location.href = 'login.html'; 
+    }
+
+    async function toggleAvailability() {
+      const toggle = document.getElementById('availabilityToggle');
+      const label = document.getElementById('availabilityLabel');
+      const isAvailable = toggle.checked;
+      
+      try {
+        const res = await fetch(`/api/pharmacies/${pharmacyId}/availability`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isAvailable })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          label.textContent = data.isAvailable ? 'Available' : 'Offline';
+          label.style.color = data.isAvailable ? 'var(--primary)' : 'var(--slate)';
+        } else {
+          alert('Failed to update availability.');
+          toggle.checked = !isAvailable; // Revert
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error updating availability.');
+        toggle.checked = !isAvailable; // Revert
+      }
+    }
     
     // --- ANALYTICS LOGIC ---
     let salesChartInstance = null;

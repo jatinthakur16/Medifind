@@ -20,6 +20,15 @@
     .auth-links { margin-top: 24px; text-align: center; font-size: 0.9rem; }
     .auth-links a { color: var(--slate); text-decoration: none; }
     .auth-links a:hover { color: var(--ink); text-decoration: underline; }
+
+    /* Modal Styles */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: var(--paper); padding: 30px; border-radius: var(--radius-md); width: 100%; max-width: 400px; box-shadow: var(--shadow-modal); position: relative; }
+    .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--slate); }
+    .modal-title { font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 15px; color: var(--ink); }
+    .password-container { position: relative; width: 100%; }
+    .password-container input { width: 100%; }
+    .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--slate); font-size: 0.9rem; user-select: none; }
   </style>
 </head>
 <body>
@@ -36,9 +45,15 @@
     
     <div class="auth-error" id="errorMsg"></div>
 
-    <form id="loginForm" class="auth-form">
-      <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
-      <input type="password" id="password" class="auth-input" placeholder="Password" required>
+      <form id="loginForm" class="auth-form">
+        <input type="text" id="email" class="auth-input" placeholder="Email or Mobile Number" required>
+        <div class="password-container">
+          <input type="password" id="password" class="auth-input" placeholder="Password" style="padding-right: 40px;" required>
+          <span class="password-toggle" onclick="togglePassword('password')">Show</span>
+        </div>
+        <div style="text-align: right;">
+        <a href="#" id="forgotPasswordLink" style="font-size: 0.85rem; color: var(--slate); text-decoration: none;">Forgot Password?</a>
+      </div>
       <button type="submit" id="submitBtn" class="auth-btn">Sign In</button>
     </form>
 
@@ -47,7 +62,58 @@
     </div>
   </div>
 
+  <!-- Forgot Password Modals -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeForgotModal()">&times;</button>
+      <div class="modal-title" id="forgotTitle">Reset Password</div>
+      <div class="auth-error" id="forgotError"></div>
+      <div style="color: var(--success); font-size: 0.875rem; display: none; background: var(--success-tint); padding: 10px; border-radius: var(--radius-sm); margin-bottom: 16px;" id="forgotSuccess"></div>
+      
+      <!-- Step 1: Request OTP -->
+      <form id="requestOtpForm" class="auth-form">
+        <p style="font-size: 0.9rem; color: var(--slate); margin-top: 0;">Enter your registered Email or Mobile Number to receive an OTP.</p>
+        <input type="text" id="forgotEmail" class="auth-input" placeholder="Email or Mobile Number" required>
+        <button type="submit" id="requestOtpBtn" class="auth-btn">Send OTP</button>
+      </form>
+
+      <!-- Step 2: Verify OTP & Reset -->
+      <form id="resetPasswordForm" class="auth-form" style="display: none;">
+        <p style="font-size: 0.9rem; color: var(--slate); margin-top: 0;">Enter the 6-digit OTP sent to your email.</p>
+        <input type="text" id="resetOtp" class="auth-input" placeholder="6-digit OTP" required>
+        <div class="password-container">
+          <input type="password" id="newPassword" class="auth-input" placeholder="New Password" style="padding-right: 40px;" required>
+          <span class="password-toggle" onclick="togglePassword('newPassword', this)">👁️</span>
+        </div>
+        <button type="submit" id="resetPasswordBtn" class="auth-btn">Reset Password</button>
+      </form>
+    </div>
+  </div>
+
   <script>
+    function togglePassword(inputId, icon) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        icon.textContent = '👁️';
+      }
+    }
+
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      const toggleBtn = input.nextElementSibling;
+      if (input.type === "password") {
+        input.type = "text";
+        toggleBtn.textContent = "Hide";
+      } else {
+        input.type = "password";
+        toggleBtn.textContent = "Show";
+      }
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -73,12 +139,11 @@
           throw new Error(data.error || 'Login failed');
         }
 
-        // Save token
-        localStorage.setItem('medifind-token', data.token);
+        // Save user details (token is handled automatically via HttpOnly cookie)
         localStorage.setItem('medifind-user', JSON.stringify(data.user));
 
         // ROLE-BASED ROUTING
-        if (data.user.role === 'ADMIN') {
+        if (data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN') {
           window.location.href = 'admin-console.html';
         } else if (data.user.role === 'OWNER') {
           // Check if pharmacy is approved
@@ -96,6 +161,99 @@
         errorMsg.textContent = err.message;
         errorMsg.style.display = 'block';
         btn.textContent = 'Sign In';
+        btn.disabled = false;
+      }
+    });
+
+    // Forgot Password Logic
+    const forgotModal = document.getElementById('forgotModal');
+    const requestForm = document.getElementById('requestOtpForm');
+    const resetForm = document.getElementById('resetPasswordForm');
+    const forgotError = document.getElementById('forgotError');
+    const forgotSuccess = document.getElementById('forgotSuccess');
+    
+    document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      forgotModal.style.display = 'flex';
+      requestForm.style.display = 'flex';
+      resetForm.style.display = 'none';
+      forgotError.style.display = 'none';
+      forgotSuccess.style.display = 'none';
+      document.getElementById('forgotEmail').value = document.getElementById('email').value;
+    });
+
+    function closeForgotModal() {
+      forgotModal.style.display = 'none';
+    }
+
+    requestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailInput = document.getElementById('forgotEmail').value;
+      const btn = document.getElementById('requestOtpBtn');
+      
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      forgotError.style.display = 'none';
+      forgotSuccess.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailInput })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        
+        forgotSuccess.textContent = data.message;
+        forgotSuccess.style.display = 'block';
+        requestForm.style.display = 'none';
+        resetForm.style.display = 'flex';
+        // Pass the resolved email down
+        resetForm.dataset.email = data.email || emailInput;
+      } catch (err) {
+        forgotError.textContent = err.message;
+        forgotError.style.display = 'block';
+      } finally {
+        btn.textContent = 'Send OTP';
+        btn.disabled = false;
+      }
+    });
+
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const otp = document.getElementById('resetOtp').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const email = resetForm.dataset.email;
+      const btn = document.getElementById('resetPasswordBtn');
+      
+      btn.textContent = 'Resetting...';
+      btn.disabled = true;
+      forgotError.style.display = 'none';
+      forgotSuccess.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, otp, newPassword })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        
+        forgotSuccess.textContent = data.message;
+        forgotSuccess.style.display = 'block';
+        resetForm.style.display = 'none';
+        
+        // Auto close after 2 seconds
+        setTimeout(() => {
+          closeForgotModal();
+          document.getElementById('password').value = '';
+        }, 2000);
+      } catch (err) {
+        forgotError.textContent = err.message;
+        forgotError.style.display = 'block';
+        btn.textContent = 'Reset Password';
         btn.disabled = false;
       }
     });

@@ -14,6 +14,8 @@ const prescriptionRoutes = require('./routes/prescriptions');
 // Allow cross-origin requests
 app.use(cors());
 app.use(express.json());
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '../public')));

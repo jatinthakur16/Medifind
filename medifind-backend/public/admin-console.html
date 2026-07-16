@@ -230,10 +230,11 @@
 
   <script>
     // --- Authentication Check ---
-    const token = localStorage.getItem('medifind-token');
+    const token = '';
     const userStr = localStorage.getItem('medifind-user');
+    let currentUser = null;
     
-    if (!token || !userStr) {
+    if (!userStr) {
       window.location.href = 'login.html';
     } else {
       const user = JSON.parse(userStr);

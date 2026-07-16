@@ -18,6 +18,19 @@ model AuditLog {
   createdAt   DateTime @default(now())
 }
 
+model Complaint {
+  id          String   @id @default(uuid())
+  reportedId  String
+  reporterId  String
+  issueType   String
+  description String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+
+  reported    User     @relation("ReportedComplaints", fields: [reportedId], references: [id])
+  reporter    User     @relation("FiledComplaints", fields: [reporterId], references: [id])
+}
+
 model Manufacturer {
   id        String     @id
   name      String
@@ -96,13 +109,13 @@ model Pharmacy {
   
   // --- NEW FIELDS FOR VERIFICATION ---
   status             PharmacyStatus   @default(PENDING)
+  isAvailable        Boolean          @default(false)
   legalStoreName     String?          // Add this
   addressProofUrl    String?
   gstDocumentUrl     String?          
   panDocumentUrl     String?          
   licenseDocumentUrl String?          
   
-// Update this exact line
   ownerId            String?          @unique 
   owner              User?            @relation(fields: [ownerId], references: [id])
   
@@ -181,9 +194,11 @@ model User {
   role         UserRole       @default(CUSTOMER)
   
   // New fields for the auth pipeline
-  phone        String?
+  phone        String?        @unique
   isVerified   Boolean        @default(false)
   isActive     Boolean        @default(true)
+  resetOtp     String?
+  resetOtpExpiry DateTime?
   
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -192,6 +207,9 @@ model User {
   Prescription Prescription[]
   Reservation  Reservation[]
   Pharmacy Pharmacy?
+  
+  ReportedComplaints Complaint[] @relation("ReportedComplaints")
+  FiledComplaints    Complaint[] @relation("FiledComplaints")
 }
 
 enum PharmacyStatus {

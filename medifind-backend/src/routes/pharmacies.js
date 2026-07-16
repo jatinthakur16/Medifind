@@ -12,6 +12,35 @@ const { authenticate, authorize } = require("../middleware/auth");
 const router = express.Router();
 
 // ==========================================
+// PATCH: Toggle Pharmacy Availability
+// ==========================================
+router.patch(
+  "/:id/availability",
+  authenticate,
+  authorize("PHARMACIST", "OWNER", "ADMIN"),
+  asyncHandler(async (req, res) => {
+    const { isAvailable } = req.body;
+    if (typeof isAvailable !== 'boolean') {
+      throw new HttpError(400, "isAvailable must be a boolean");
+    }
+    
+    // Ensure the user actually owns this pharmacy or is an admin
+    const pharmacy = await prisma.pharmacy.findUnique({ where: { id: req.params.id } });
+    if (!pharmacy) throw new HttpError(404, "Pharmacy not found");
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN' && pharmacy.ownerId !== req.user.id) {
+      throw new HttpError(403, "You can only update your own pharmacy");
+    }
+
+    const updated = await prisma.pharmacy.update({
+      where: { id: req.params.id },
+      data: { isAvailable }
+    });
+
+    res.json({ success: true, isAvailable: updated.isAvailable });
+  })
+);
+
+// ==========================================
 // GET: List pharmacies (for pickers like the prescription-order flow,
 // where a customer needs to choose a pharmacy without having searched
 // for a specific medicine first)
@@ -37,7 +66,7 @@ router.get(
   "/",
   asyncHandler(async (req, res) => {
     const pharmacies = await prisma.pharmacy.findMany({
-      where: { status: "APPROVED" },
+      where: { status: "APPROVED", isAvailable: true },
       select: {
         id: true,
         name: true,
@@ -283,6 +312,79 @@ router.get(
         topRevenueItems,
         transactions
       }
+    });
+  })
+);
+
+// ==========================================
+// GET: Pharmacy Restricted Sales
+// ==========================================
+router.get(
+  "/:id/restricted-sales",
+  authenticate,
+  authorize("PHARMACIST", "OWNER", "ADMIN", "SUPER_ADMIN"),
+  asyncHandler(async (req, res) => {
+    const { startDate, endDate } = req.query;
+    
+    // Default to last 1 month if not provided
+    const end = endDate ? new Date(endDate) : new Date();
+    const start = startDate ? new Date(startDate) : new Date();
+    if (!startDate) {
+      start.setMonth(start.getMonth() - 1);
+    }
+    
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    // Fetch Reservations that contain restricted items
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        pharmacyId: req.params.id,
+        status: { in: ["COMPLETED", "ACCEPTED", "APPROVED"] },
+        updatedAt: {
+          gte: start,
+          lte: end,
+        },
+        Items: {
+          some: {
+            Medicine: {
+              isRestricted: true
+            }
+          }
+        }
+      },
+      include: {
+        User: { select: { name: true, phone: true, email: true } },
+        Items: {
+          include: {
+            Medicine: true
+          }
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    const restrictedSales = [];
+
+    reservations.forEach(resv => {
+      const dateStr = resv.updatedAt.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+      
+      resv.Items.forEach(item => {
+        if (item.Medicine && item.Medicine.isRestricted) {
+          restrictedSales.push({
+            date: dateStr,
+            customerName: resv.User?.name || "Unknown",
+            customerPhone: resv.User?.phone || resv.User?.email || "N/A", // Fallback to email if no phone
+            medicineName: item.Medicine.brandName,
+            quantity: item.quantity
+          });
+        }
+      });
+    });
+
+    res.json({
+      success: true,
+      data: restrictedSales
     });
   })
 );

@@ -18,4 +18,21 @@ router.post('/login', authController.login);
 // Get Profile: Authenticated users can fetch their own data
 router.get('/me', authenticateToken, authController.getMe);
 
+const rateLimit = require('express-rate-limit');
+
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: { error: "Too many requests from this IP, please try again after 15 minutes" }
+});
+
+// Forgot Password
+router.post('/forgot-password', otpLimiter, authController.forgotPassword);
+
+// Reset Password
+router.post('/reset-password', otpLimiter, authController.resetPassword);
+
+// Logout
+router.post('/logout', authController.logout);
+
 module.exports = router;
