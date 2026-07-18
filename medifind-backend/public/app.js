@@ -2144,3 +2144,55 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+window.loadRestrictedMedicines = async function() {
+  const tbody = document.getElementById('restrictedMedicinesTable');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading restricted medicines...</td></tr>';
+  
+  try {
+    const payload = await apiFetch('/api/medicines/restricted');
+    if (payload.success && payload.data) {
+      if (payload.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No restricted medicines found.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = payload.data.map(med => `
+        <tr>
+          <td><strong>${med.brandName}</strong></td>
+          <td>${med.genericName}</td>
+          <td>${med.category || 'N/A'}</td>
+          <td><span class="badge" style="background:var(--error);color:white;">Restricted</span></td>
+          <td>
+            <button class="btn btn-primary" onclick="toggleMedicineRestriction('${med.id}', false)" style="padding: 5px 10px; font-size: 0.8rem; background: var(--slate);">
+              Remove Restriction
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Failed to load restricted medicines', err);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;">Error loading restricted medicines.</td></tr>';
+  }
+}
+
+window.toggleMedicineRestriction = async (id, isRestricted) => {
+  if (!confirm('Are you sure you want to change the restriction status of this medicine?')) return;
+  try {
+    const res = await apiFetch(`/api/medicines/${id}/restrict`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isRestricted })
+    });
+    if (res.success) {
+      toastMessage(isRestricted ? 'Medicine marked as restricted.' : 'Restriction removed.');
+      window.loadRestrictedMedicines();
+    } else {
+      toastMessage('Failed to update status', true);
+    }
+  } catch (err) {
+    console.error(err);
+    toastMessage('An error occurred', true);
+  }
+};

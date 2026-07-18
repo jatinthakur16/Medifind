@@ -156,6 +156,29 @@ router.get(
     });
   })
 );
+
+// --- RESTRICTED MEDICINES ADMIN ROUTES ---
+router.get("/restricted", authenticate, authorize("ADMIN", "SUPER_ADMIN"), asyncHandler(async (req, res) => {
+  const restrictedMeds = await prisma.medicine.findMany({
+    where: { isRestricted: true },
+    select: { id: true, skuCode: true, brandName: true, genericName: true, category: true, isRestricted: true }
+  });
+  res.json({ success: true, data: restrictedMeds });
+}));
+
+router.patch("/:id/restrict", authenticate, authorize("ADMIN", "SUPER_ADMIN"), asyncHandler(async (req, res) => {
+  const { isRestricted } = req.body;
+  if (typeof isRestricted !== 'boolean') {
+    throw new HttpError(400, "isRestricted must be a boolean");
+  }
+  const updated = await prisma.medicine.update({
+    where: { id: req.params.id },
+    data: { isRestricted },
+    select: { id: true, isRestricted: true }
+  });
+  res.json({ success: true, data: updated });
+}));
+
 router.get("/search", asyncHandler(async (req, res) => {
   const { query } = req.query;
 
