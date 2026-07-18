@@ -441,7 +441,6 @@ const uploadPrescriptionFile = async (file) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/prescriptions`, {
       method: 'POST',
-      ,
         body: formData,
     });
 
@@ -518,7 +517,6 @@ const submitPrescriptionOrder = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/reservations`, {
       method: 'POST',
-      ,
         body: formData,
     });
 
@@ -1993,12 +1991,16 @@ if (dom.confirmReserveBtn) dom.confirmReserveBtn.addEventListener('click', () =>
 };
 const enforceRoleUI = () => {
   const userStr = localStorage.getItem('medifind-user');
-  if (!userStr) return;
+  let role = 'GUEST';
   
-  try {
-    const user = JSON.parse(userStr);
-    const role = user.role; 
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      role = user.role; 
+    } catch (e) {}
+  }
 
+  try {
     // 1. Clean up the Navigation Bar Links
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -2006,8 +2008,11 @@ const enforceRoleUI = () => {
       const target = link.getAttribute('href') || link.dataset.view || '';
       let isAllowed = false;
 
-      // Lock down the search page strictly to Customers and Admins
-      if (target.includes('index') || target === 'customer' || target === 'history') {
+      // Lock down the search page to GUEST, Customers and Admins
+      if (target.includes('index') || target === 'customer') {
+        isAllowed = ['GUEST', 'CUSTOMER', 'PHARMACIST', 'OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role);
+      }
+      else if (target === 'history') {
         isAllowed = ['CUSTOMER', 'ADMIN', 'SUPER_ADMIN'].includes(role);
       }
       // Pharmacist Desk access
