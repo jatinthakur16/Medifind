@@ -2187,12 +2187,97 @@ window.toggleMedicineRestriction = async (id, isRestricted) => {
     });
     if (res.success) {
       toastMessage(isRestricted ? 'Medicine marked as restricted.' : 'Restriction removed.');
-      window.loadRestrictedMedicines();
+      if (typeof window.loadRestrictedMedicines === 'function') window.loadRestrictedMedicines();
+      if (typeof window.loadNormalMedicines === 'function') window.loadNormalMedicines();
     } else {
       toastMessage('Failed to update status', true);
     }
   } catch (err) {
     console.error(err);
     toastMessage('An error occurred', true);
+  }
+};
+
+window.loadNormalMedicines = async function() {
+  const tbody = document.getElementById('normalMedicinesTable');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading normal medicines...</td></tr>';
+  
+  try {
+    const payload = await apiFetch('/api/medicines/search?q=');
+    if (payload.success && payload.data) {
+      // Filter out restricted ones if search endpoint returns all
+      const normalMeds = payload.data.filter(m => !m.isRestricted);
+      if (normalMeds.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No normal medicines found.</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = normalMeds.map(med => `
+        <tr>
+          <td><strong>${med.brandName}</strong></td>
+          <td>${med.genericName}</td>
+          <td>${med.category || 'N/A'}</td>
+          <td><span class="badge" style="background:var(--ok);color:white;">Normal</span></td>
+          <td>
+            <button class="btn btn-primary" onclick="window.toggleMedicineRestriction('${med.id}', true)" style="padding: 5px 10px; font-size: 0.8rem;">Restrict</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  } catch (error) {
+    console.error(error);
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Failed to load normal medicines</td></tr>';
+  }
+};
+
+window.submitComplaint = async function() {
+  const reporterId = JSON.parse(localStorage.getItem('medifind-user'))?.id;
+  const reportedEmail = document.getElementById('complaintUserEmail').value.trim();
+  const issueType = document.getElementById('complaintReasonSelect').value;
+  const customReason = document.getElementById('complaintReasonCustom').value.trim();
+  
+  if (!reportedEmail) {
+    alert('Please enter the user email to report.');
+    return;
+  }
+  
+  const finalReason = issueType === 'OTHER' ? customReason : issueType;
+  
+  try {
+    const res = await apiFetch('/api/admin/complaints', {
+      method: 'POST',
+      body: JSON.stringify({ reportedEmail, issueType: finalReason })
+    });
+    
+    if (res.success) {
+      alert('Report submitted successfully.');
+      document.getElementById('complaintModal').style.display = 'none';
+    } else {
+      alert('Error: ' + res.error);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to submit report.');
+  }
+};
+
+window.openComplaintModal = function() {
+  const modal = document.getElementById('complaintModal');
+  if (modal) modal.style.display = 'flex';
+};
+
+window.closeComplaintModal = function() {
+  const modal = document.getElementById('complaintModal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.toggleComplaintCustomReason = function() {
+  const select = document.getElementById('complaintReasonSelect');
+  const customBox = document.getElementById('complaintOtherReasonBox');
+  if (select.value === 'OTHER') {
+    customBox.style.display = 'block';
+  } else {
+    customBox.style.display = 'none';
   }
 };

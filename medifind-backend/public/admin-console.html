@@ -65,7 +65,10 @@
         <!-- Platform Overview -->
         <div class="dash-panel active" id="panel-adminoverview">
           <div class="dash-head">
-            <h2>Platform overview</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <h2>Platform overview</h2>
+                <button class="btn btn-primary" onclick="window.openComplaintModal()" style="background: var(--danger); border: none; padding: 8px 16px;">Report User</button>
+              </div>
             <p class="muted">Operational health across the network.</p>
           </div>
           <div class="kpi-row">
@@ -232,7 +235,37 @@
     </div>
   </div>
 
-  <script>
+  
+    <!-- ============ COMPLAINT MODAL ============ -->
+    <div class="modal-overlay" id="complaintModal" style="display: none; align-items: center; justify-content: center;">
+      <div class="modal" style="background: white; padding: 20px; border-radius: 8px; width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h3 style="margin-top:0;">Report a User</h3>
+        <p style="font-size: 0.85rem; color: var(--slate); margin-bottom: 20px;">File an official complaint against a user.</p>
+        
+        <label style="display:block; margin-bottom:8px; font-weight:600; font-size: 0.9rem;">User Email:</label>
+        <input type="email" id="complaintUserEmail" class="form-control" placeholder="Enter user's email address" style="margin-bottom: 15px;">
+
+        <label style="display:block; margin-bottom:8px; font-weight:600; font-size: 0.9rem;">Issue Type:</label>
+        <select id="complaintReasonSelect" class="form-control" onchange="window.toggleComplaintCustomReason()" style="margin-bottom: 15px;">
+          <option value="Fraudulent Activity">Fraudulent Activity</option>
+          <option value="Spam">Spam</option>
+          <option value="Policy Violation">Policy Violation</option>
+          <option value="OTHER">Other (Please specify below)</option>
+        </select>
+  
+        <div id="complaintOtherReasonBox" style="display:none; margin-bottom: 15px;">
+          <label style="display:block; font-size:0.85rem; margin-bottom:5px; font-weight:600;">Custom Reason:</label>
+          <input type="text" id="complaintReasonCustom" class="form-control" placeholder="Type specific reason...">
+        </div>
+  
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 10px;">
+          <button onclick="window.closeComplaintModal()" style="padding:10px 15px; border:1px solid var(--line); background: white; border-radius:6px; cursor:pointer; font-weight: 600;">Cancel</button>
+          <button onclick="window.submitComplaint()" style="background:var(--danger); color:white; padding:10px 15px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Submit Report</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
     // --- Authentication Check ---
     const token = '';
     const userStr = localStorage.getItem('medifind-user');
