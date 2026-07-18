@@ -30,6 +30,12 @@ const fetchMedicines = async (query) => {
     include: {
       Manufacturer: true,
       MedicineBatch: {
+        where: {
+          Pharmacy: {
+            isAvailable: true,
+            status: "APPROVED"
+          }
+        },
         include: {
           Pharmacy: true,
           StockTransaction: true,
@@ -164,6 +170,12 @@ router.get("/search", asyncHandler(async (req, res) => {
     },
     include: {
       MedicineBatch: {
+        where: {
+          Pharmacy: {
+            isAvailable: true,
+            status: "APPROVED"
+          }
+        },
         include: { StockTransaction: true }
       }
     }
