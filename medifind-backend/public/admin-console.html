@@ -56,7 +56,7 @@
           <button class="dash-nav-item active" onclick="switchAdminTab('adminoverview')">Platform overview</button>
           <button class="dash-nav-item" onclick="switchAdminTab('verification')">Pharmacy verification</button>
           <button class="dash-nav-item" onclick="switchAdminTab('useractivity')">User activity & Reservations</button>
-          <button class="dash-nav-item" onclick="switchAdminTab('restricted')">Restricted Medicines</button>
+          
         </nav>
       </aside>
 
@@ -201,32 +201,7 @@
       </div>
     </section>
   
-      <!-- RESTRICTED MEDICINES PANEL -->
-      <section id="panel-restricted" class="dash-panel" style="display: none;">
-        <div class="panel-header">
-          <h2>Restricted Medicines</h2>
-        </div>
-        <div class="card">
-          <h3>Manage Restricted Drugs</h3>
-          <p>These drugs require strict prescriptions and are subject to regulatory oversight.</p>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Brand Name</th>
-                  <th>Generic Name</th>
-                  <th>Category</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="restrictedMedicinesTable">
-                <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+      
 
       </main>
 
@@ -603,12 +578,7 @@
     loadCustomerRegistrations();
     loadPharmacyRegistrations();
     
-    // Fallback if app.js isn't fully loaded before inline scripts
-    setTimeout(() => {
-      if (typeof window.loadRestrictedMedicines === 'function') {
-        window.loadRestrictedMedicines();
-      }
-    }, 500);
+    
   </script>
 </body>
 </html>
