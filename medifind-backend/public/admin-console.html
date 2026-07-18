@@ -275,7 +275,7 @@
       window.location.href = 'login.html';
     } else {
       const user = JSON.parse(userStr);
-      if (user.role !== 'ADMIN') {
+      if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
         alert("Access Denied: You do not have administrator privileges.");
         window.location.href = 'index.html';
       }
