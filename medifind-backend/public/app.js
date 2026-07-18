@@ -1736,14 +1736,8 @@ const renderAuditTable = () => {
 async function loadCustomerHistory() {
   if (!dom.historyTableBody) return;
   
-  
-  if (!token) return;
-
   try {
-    const res = await fetch(`${API_BASE_URL}/api/reservations`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const data = await res.json();
+    const data = await apiFetch('/api/reservations');
     
     if (data.success && data.data) {
       dom.historyTableBody.innerHTML = '';
