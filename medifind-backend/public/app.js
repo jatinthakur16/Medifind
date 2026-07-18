@@ -123,7 +123,7 @@ const apiFetch = async (path, options = {}) => {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(state.authToken ? { Authorization: `Bearer ${state.authToken}` } : {}),
+      
       ...(options.headers || {}),
     },
   });
@@ -297,7 +297,7 @@ const closeAuthModal = () => {
 
 const signOut = () => {
   state.currentUser = null;
-  state.authToken = null;
+  
   state.currentPrescriptionId = null;
   localStorage.removeItem(STORAGE_KEYS.user);
   localStorage.removeItem(STORAGE_KEYS.token);
@@ -331,7 +331,7 @@ const renderAccountActivity = async () => {
   const body = panel?.querySelector('[data-user-activity-body]');
   if (!body) return;
 
-  if (!state.currentUser || !state.authToken) {
+  if (!state.currentUser ) {
     body.innerHTML = '<p class="muted">Sign in to see your reservations and prescriptions.</p>';
     return;
   }
@@ -430,7 +430,7 @@ const renderAccountActivity = async () => {
 
 const uploadPrescriptionFile = async (file) => {
   if (!file) return;
-  if (!state.authToken) {
+  if (!state.currentUser) {
     toastMessage('Please sign in before uploading a prescription.');
     return;
   }
@@ -441,10 +441,8 @@ const uploadPrescriptionFile = async (file) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/prescriptions`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${state.authToken}`,
-      },
-      body: formData,
+      ,
+        body: formData,
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -480,7 +478,7 @@ const loadPharmacyOptions = async () => {
 
 const openPrescriptionOrderModal = () => {
   if (!dom.prescriptionOrderModal) return;
-  if (!state.currentUser || !state.authToken) {
+  if (!state.currentUser ) {
     toastMessage('Please sign in before uploading a prescription.');
     return;
   }
@@ -520,10 +518,8 @@ const submitPrescriptionOrder = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/reservations`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${state.authToken}`,
-      },
-      body: formData,
+      ,
+        body: formData,
     });
 
     const payload = await response.json().catch(() => ({}));
@@ -690,9 +686,9 @@ const saveProfile = async (event) => {
       ...authPayload.user,
       role: roleFromApiRole(authPayload.user.role),
     };
-    state.authToken = authPayload.token;
+    
     writeJson(STORAGE_KEYS.user, state.currentUser);
-    localStorage.setItem(STORAGE_KEYS.token, state.authToken);
+    
     renderAuthState();
     closeAuthModal();
     void renderAccountActivity();
@@ -710,10 +706,10 @@ const saveProfile = async (event) => {
 const loadProfile = async () => {
   // 1. Grab data from local storage
   state.currentUser = readJson('medifind-user', null);
-  state.authToken = localStorage.getItem('medifind-token');
+  
   renderAuthState(); // Update the button immediately
 
-  if (!state.authToken) return;
+  if (!state.currentUser) return;
 
   // 2. Try to verify with backend in the background
   try {
@@ -1273,7 +1269,7 @@ const updateCartBadge = () => {
 const addToCart = () => {
   if (!state.currentResultItem || !dom.qtyInput || !dom.reserveStep1 || !dom.reserveStep2) return;
 
-  if (!state.currentUser || !state.authToken) {
+  if (!state.currentUser ) {
     toastMessage('Please sign in before reserving medicine.');
     return;
   }
@@ -1425,7 +1421,7 @@ const closeCartModal = () => {
 };
 
 const reserveAllCartItems = async () => {
-  if (!state.currentUser || !state.authToken) {
+  if (!state.currentUser ) {
     toastMessage('Please sign in before reserving medicine.');
     return;
   }
@@ -1474,8 +1470,8 @@ const reserveAllCartItems = async () => {
 
         const response = await fetch(`${API_BASE_URL}/api/reservations`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${state.authToken}` },
-          body: formData,
+          headers: {  },
+        body: formData,
         });
         payload = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -1484,7 +1480,7 @@ const reserveAllCartItems = async () => {
       } else {
         payload = await apiFetch('/api/reservations', {
           method: 'POST',
-          body: JSON.stringify({
+        body: JSON.stringify({
             pharmacyId,
             cart: JSON.stringify(cartPayload),
             note: cartNote || undefined,
