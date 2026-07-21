@@ -9,7 +9,6 @@
 This project was developed by Team CodeBlooded (Group 5) as part of the Summer Internship 2026 program at JSL WORKS Pvt Ltd. All intellectual property, including logos, technical frameworks, and documentation, are the exclusive property of JSL WORKS Pvt Ltd, as per the Letter of Authorization provided by the company founder, Partho Ghosh.
 
 ---
-
 # Project Overview
 
 MediFind is a real-time, location-based medicine discovery and reservation platform. It bridges the gap between patients and local pharmacies by allowing users to instantly check live inventory, compare prices, and reserve stock before leaving their homes. The platform is built with a robust role-based architecture, providing dedicated portals for Customers, Pharmacy Owners, Pharmacists, and Administrators.
