@@ -22,6 +22,11 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/uploads', express.static('uploads'));
 
+// Explicitly serve index.html for the root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/medicines', medicineRoutes);
