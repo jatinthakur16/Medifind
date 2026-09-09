@@ -67,7 +67,7 @@
           <div class="dash-head">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <h2>Platform overview</h2>
-                <button class="btn btn-primary" onclick="window.openComplaintModal()" style="background: var(--danger); border: none; padding: 8px 16px;">Report User</button>
+                
               </div>
             <p class="muted">Operational health across the network.</p>
           </div>
@@ -94,9 +94,7 @@
           <div class="card" style="margin-top: 1rem;">
             <p style="margin-bottom: 1.5rem; color: var(--slate);">Enroll a new administrator into the platform. An email with their temporary password will be dispatched immediately.</p>
             <form id="enrollAdminForm" onsubmit="event.preventDefault(); enrollAdmin();" style="display:flex; gap:1rem; align-items: center; flex-wrap:wrap;">
-              <input type="text" id="newAdminName" class="form-control" placeholder="Admin Name" required style="max-width: 200px;">
-              <input type="email" id="newAdminEmail" class="form-control" placeholder="Admin Email" required style="max-width: 250px;">
-              <input type="password" id="newAdminPassword" class="form-control" placeholder="Temporary Password" required style="max-width: 200px;">
+              <input type="email" id="newAdminEmail" class="form-control" placeholder="Admin Email" required style="max-width: 300px;">
               <button type="submit" class="btn btn-primary" style="margin-top: 0;">Enroll Admin</button>
             </form>
           </div>
@@ -351,9 +349,9 @@
       });
       event.target.classList.add('active');
 
-      document.getElementById('panel-adminoverview').style.display = 'none';
-      document.getElementById('panel-verification').style.display = 'none';
-      document.getElementById('panel-useractivity').style.display = 'none';
+      document.querySelectorAll('.dash-panel').forEach(panel => {
+        panel.style.display = 'none';
+      });
 
       document.getElementById('panel-' + tabId).style.display = 'block';
     }
@@ -665,14 +663,12 @@
 
     
     async function enrollAdmin() {
-      const name = document.getElementById('newAdminName').value;
       const email = document.getElementById('newAdminEmail').value;
-      const password = document.getElementById('newAdminPassword').value;
       try {
         const res = await fetch('/api/admin/enroll-admin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ email })
         });
         const data = await res.json();
         if (data.success) alert('Admin enrolled successfully!');
