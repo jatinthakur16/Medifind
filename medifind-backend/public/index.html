@@ -143,7 +143,9 @@
         localStorage.setItem('medifind-user', JSON.stringify(data.user));
 
         // ROLE-BASED ROUTING
-        if (data.user.role === 'ADMIN' || data.user.role === 'SUPER_ADMIN') {
+        if (data.user.role === 'SUPER_ADMIN') {
+          window.location.href = 'super-admin-console.html';
+        } else if (data.user.role === 'ADMIN') {
           window.location.href = 'admin-console.html';
         } else if (data.user.role === 'OWNER') {
           // Check if pharmacy is approved

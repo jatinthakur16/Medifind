@@ -7,8 +7,8 @@
 
   // 1. If NO userStr, immediately kick to login page (unless already on auth pages)
   if (!userStr) {
-    if (currentPage !== 'login.html' && currentPage !== 'signup.html' && currentPage !== 'index.html' && currentPage !== '') {
-      window.location.replace('login.html');
+    if (currentPage !== 'index.html' && currentPage !== 'signup.html' && currentPage !== 'index.html' && currentPage !== '') {
+      window.location.replace('index.html');
     }
     return;
   }
@@ -43,6 +43,6 @@
   } catch (e) {
     // If user data is corrupted, force login
     localStorage.clear();
-    window.location.replace('login.html');
+    window.location.replace('index.html');
   }
 })();

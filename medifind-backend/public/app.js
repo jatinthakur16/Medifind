@@ -230,18 +230,18 @@ const renderAuthState = () => {
         e.preventDefault();
         localStorage.removeItem('medifind-token');
         localStorage.removeItem('medifind-user');
-        window.location.href = 'login.html'; // Kick them back to login page
+        window.location.href = 'index.html'; // Kick them back to login page
       };
       
     } catch (e) {
       // If data is corrupted, default to logged out state
       navBtn.textContent = 'Sign in';
-      navBtn.onclick = () => window.location.href = 'login.html';
+      navBtn.onclick = () => window.location.href = 'index.html';
     }
   } else {
     // User IS NOT logged in -> Send them to the real login page
     navBtn.textContent = 'Sign in';
-    navBtn.onclick = () => window.location.href = 'login.html';
+    navBtn.onclick = () => window.location.href = 'index.html';
   }
 };
 const enforceRoleAccess = () => {
@@ -283,10 +283,10 @@ const openAuthModal = () => {
     // If logged in, clicking logs them out
     localStorage.removeItem('medifind-token');
     localStorage.removeItem('medifind-user');
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
   } else {
     // If not logged in, send to the real login page
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
   }
 };
 

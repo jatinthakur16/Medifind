@@ -85,7 +85,65 @@
           </div>
         </div>
 
-        <!-- Pharmacy Verification -->
+        
+        <!-- Manage Admins -->
+        <div class="dash-panel" id="panel-manageadmins" style="display: none;">
+          <div class="dash-head">
+            <h2>Manage Admins</h2>
+          </div>
+          <div class="card">
+            <h3>Enroll New Admin</h3>
+            <form id="enrollAdminForm" onsubmit="event.preventDefault(); enrollAdmin();" style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom: 2rem;">
+              <input type="text" id="newAdminName" placeholder="Admin Name" required style="padding:0.5rem;">
+              <input type="email" id="newAdminEmail" placeholder="Admin Email" required style="padding:0.5rem;">
+              <input type="password" id="newAdminPassword" placeholder="Temporary Password" required style="padding:0.5rem;">
+              <button type="submit" class="auth-btn" style="width:auto;">Enroll Admin</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Manage Users -->
+        <div class="dash-panel" id="panel-manageusers" style="display: none;">
+          <div class="dash-head">
+            <h2>Manage Users</h2>
+          </div>
+          <div class="card">
+            <h3>Remove User Account</h3>
+            <form id="removeUserForm" onsubmit="event.preventDefault(); removeUser();" style="display:flex; flex-direction:column; gap:1rem; max-width: 400px;">
+              <input type="text" id="removeUserId" placeholder="User ID to remove" required style="padding:0.5rem;">
+              <label style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="checkbox" id="confirmRemove" required>
+                I am sure I want to permanently remove this user.
+              </label>
+              <button type="submit" class="auth-btn" style="background-color: var(--danger); width:auto;">Remove User</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Complaints -->
+        <div class="dash-panel" id="panel-complaints" style="display: none;">
+          <div class="dash-head">
+            <h2>User Complaints</h2>
+          </div>
+          <div class="card">
+            <table class="data-table" style="width:100%; text-align:left; border-collapse:collapse;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <th style="padding: 12px;">ID</th>
+                  <th style="padding: 12px;">Reporter</th>
+                  <th style="padding: 12px;">Reported Account</th>
+                  <th style="padding: 12px;">Reason</th>
+                  <th style="padding: 12px;">Date</th>
+                </tr>
+              </thead>
+              <tbody id="complaintsTableBody">
+                <tr><td colspan="5" style="text-align:center; padding:12px;">Loading complaints...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+<!-- Pharmacy Verification -->
         <div class="dash-panel" id="panel-verification" style="display: none;">
           <div class="dash-head">
             <h2>Pharmacy verification</h2>
