@@ -98,7 +98,7 @@
     </form>
 
     <div class="auth-links">
-      <a href="login.html">Already have an account? Sign in</a>
+      <a href="index.html">Already have an account? Sign in</a>
     </div>
   </div>
 
@@ -275,10 +275,10 @@ formData.append('pincode', pharmacyLocation.pincode || '');
 
         // Success behavior
         if (document.getElementById('role').value === 'OWNER') {
-            document.querySelector('.auth-card').innerHTML = `<div style="text-align:center;"><h3>Request Sent</h3><p>Your documents are under review. Admin will approve shortly.</p><a href="login.html" class="auth-btn" style="display:block; text-decoration:none;">Back to Login</a></div>`;
+            document.querySelector('.auth-card').innerHTML = `<div style="text-align:center;"><h3>Request Sent</h3><p>Your documents are under review. Admin will approve shortly.</p><a href="index.html" class="auth-btn" style="display:block; text-decoration:none;">Back to Login</a></div>`;
         } else {
             localStorage.setItem('medifind-token', data.token);
-            window.location.href = 'index.html';
+            window.location.href = 'customer.html';
         }
       } catch (err) {
         errorMsg.textContent = err.message;

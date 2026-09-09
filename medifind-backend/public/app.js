@@ -2002,24 +2002,30 @@ const enforceRoleUI = () => {
       const target = link.getAttribute('href') || link.dataset.view || '';
       let isAllowed = false;
 
-      // Lock down the search page to GUEST, Customers and Admins
-      if (target.includes('index') || target === 'customer') {
-        isAllowed = ['GUEST', 'CUSTOMER', 'PHARMACIST', 'OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role);
-      }
-      else if (target === 'history') {
-        isAllowed = ['CUSTOMER', 'ADMIN', 'SUPER_ADMIN'].includes(role);
-      }
-      // Pharmacist Desk access
-      else if (target.includes('pharmacist') && ['PHARMACIST', 'OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-        isAllowed = true;
-      }
-      // Pharmacy Dashboard access
-      else if (target.includes('pharmacy') && ['OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role)) {
-        isAllowed = true;
-      }
-      // Admin Console access
-      else if (target.includes('admin') && ['ADMIN', 'SUPER_ADMIN'].includes(role)) {
-        isAllowed = true;
+      if (role === 'SUPER_ADMIN') {
+        if (target.includes('super-admin') || target.includes('super-admin-console.html')) {
+          isAllowed = true;
+        }
+      } else {
+        // Lock down the search page to GUEST, Customers and Admins
+        if (target.includes('customer') || target.includes('customer.html') || target === 'customer') {
+          isAllowed = ['GUEST', 'CUSTOMER', 'PHARMACIST', 'OWNER', 'ADMIN'].includes(role);
+        }
+        else if (target === 'history' || target.includes('history')) {
+          isAllowed = ['CUSTOMER', 'ADMIN'].includes(role);
+        }
+        // Pharmacist Desk access
+        else if (target.includes('pharmacist') && ['PHARMACIST', 'OWNER', 'ADMIN'].includes(role)) {
+          isAllowed = true;
+        }
+        // Pharmacy Dashboard access
+        else if (target.includes('pharmacy') && ['OWNER', 'ADMIN'].includes(role)) {
+          isAllowed = true;
+        }
+        // Admin Console access
+        else if (target.includes('admin') && !target.includes('super-admin') && ['ADMIN'].includes(role)) {
+          isAllowed = true;
+        }
       }
 
       if (!isAllowed) {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediFind - Admin Console</title>
+  <title>MediFind - Super Admin Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -38,7 +38,7 @@
       </a>
       
       <div style="display: flex; align-items: center; gap: 15px;">
-        <h1 style="margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--ink);">Admin Console</h1>
+        <h1 style="margin: 0; font-size: 1.2rem; font-weight: 500; color: var(--ink);">Super Admin Console</h1>
         <button class="nav-cta logout-btn" onclick="logout()" style="margin: 0;">Logout</button>
       </div>
     </div>
@@ -53,11 +53,11 @@
           Admin Panel
         </div>
         <nav class="dash-nav">
-          <button class="dash-nav-item active" onclick="switchAdminTab('adminoverview')">Platform overview</button>
-          <button class="dash-nav-item" onclick="switchAdminTab('verification')">Pharmacy verification</button>
-          <button class="dash-nav-item" onclick="switchAdminTab('useractivity')">User activity & Reservations</button>
-          
-        </nav>
+    <button class="dash-nav-item active" onclick="switchAdminTab('adminoverview')">Platform Overview</button>
+    <button class="dash-nav-item" onclick="switchAdminTab('manageadmins')">Manage Admins</button>
+    <button class="dash-nav-item" onclick="switchAdminTab('manageusers')">Manage Users</button>
+    <button class="dash-nav-item" onclick="switchAdminTab('complaints')">Complaints</button>
+  </nav>
       </aside>
 
       <div class="dash-content">
@@ -67,7 +67,7 @@
           <div class="dash-head">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <h2>Platform overview</h2>
-                
+                <button class="btn btn-primary" onclick="window.openComplaintModal()" style="background: var(--danger); border: none; padding: 8px 16px;">Report User</button>
               </div>
             <p class="muted">Operational health across the network.</p>
           </div>
@@ -603,6 +603,66 @@
         tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red; padding: 30px;">Failed to load registrations.</td></tr>';
       }
     }
+
+    
+    async function enrollAdmin() {
+      const name = document.getElementById('newAdminName').value;
+      const email = document.getElementById('newAdminEmail').value;
+      const password = document.getElementById('newAdminPassword').value;
+      try {
+        const res = await fetch('/api/admin/enroll-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (data.success) alert('Admin enrolled successfully!');
+        else alert('Error: ' + data.error);
+      } catch (e) { alert('Network error'); }
+    }
+
+    async function removeUser() {
+      const userId = document.getElementById('removeUserId').value;
+      try {
+        const res = await fetch(`/api/admin/remove-user/${userId}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await res.json();
+        if (data.success) alert('User removed successfully!');
+        else alert('Error: ' + data.error);
+      } catch (e) { alert('Network error'); }
+    }
+
+    async function loadComplaints() {
+      const tbody = document.getElementById('complaintsTable');
+      if (!tbody) return;
+      try {
+        const res = await fetch('/api/admin/complaints', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const complaints = await res.json();
+        tbody.innerHTML = '';
+        if (!Array.isArray(complaints) || complaints.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--slate); padding: 30px;">No complaints found.</td></tr>';
+          return;
+        }
+        complaints.forEach(c => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${c.reported?.name || c.reportedId}</td>
+            <td>${c.reporter?.name || c.reporterId}</td>
+            <td>${c.issueType}</td>
+            <td>${c.status}</td>
+            <td>${new Date(c.createdAt).toLocaleDateString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (e) { tbody.innerHTML = '<tr><td colspan="5">Error loading complaints</td></tr>'; }
+    }
+    
+    // Call loadComplaints on init
+    setTimeout(loadComplaints, 1000);
 
     // Initialize Page
     loadPendingPharmacies();

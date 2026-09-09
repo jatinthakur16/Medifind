@@ -405,7 +405,7 @@
     const token = '';
     const userStr = localStorage.getItem('medifind-user');
     
-    if (!userStr) window.location.href = 'login.html';
+    if (!userStr) window.location.href = 'index.html';
 
     const user = JSON.parse(userStr);
     let pharmacyId = null;
@@ -436,7 +436,7 @@
 
     if (!pharmacyId) {
         alert("We couldn't find a pharmacy attached to your account.");
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 
     function getSafeUrls(urlData) {
@@ -942,7 +942,7 @@
     async function logout() { 
       try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
       localStorage.clear(); 
-      window.location.href = 'login.html'; 
+      window.location.href = 'index.html'; 
     }
 
     async function toggleAvailability() {

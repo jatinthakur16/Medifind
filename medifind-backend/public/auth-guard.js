@@ -35,7 +35,7 @@
         'PHARMACIST': 'pharmacist-desk.html',
         'OWNER': 'pharmacy-dashboard.html',
         'ADMIN': 'admin-console.html',
-        'SUPER_ADMIN': 'admin-console.html'
+        'SUPER_ADMIN': 'super-admin-console.html'
       };
       
       window.location.replace(routes[user.role] || 'index.html');
