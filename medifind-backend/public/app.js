@@ -2030,11 +2030,13 @@ const enforceRoleUI = () => {
 
       if (!isAllowed) {
         link.style.display = 'none';
+      } else {
+        link.style.display = 'inline-block'; // Ensure allowed ones are visible!
       }
     });
 
     // 2. Destroy the "Back to search" button for non-customers
-    const backToSearchBtn = document.querySelector('a.nav-cta[href="index.html"]');
+    const backToSearchBtn = document.querySelector('a.nav-cta[href="customer.html"]');
     if (backToSearchBtn && role !== 'CUSTOMER' && role !== 'ADMIN') {
       backToSearchBtn.style.display = 'none';
     }
